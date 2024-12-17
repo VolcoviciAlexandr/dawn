@@ -9,83 +9,75 @@
 {% endcomment %}
 
 <div>
-  <predictive-search
-    class="search-modal__form"
-    data-loading-text="{{ 'accessibility.loading' | t }}"
+  <div
+    aria-modal="true"
+    aria-label="{{ 'general.search.search' | t }}"
   >
-    <form action="{{ routes.search_url }}" method="get" role="search" class="search search--inline">
-      <div class="field">
-        <input
-          class="search__input field__input"
-          id="{{ input_id }}"
-          type="search"
-          name="q"
-          value="{{ search.terms | escape }}"
-          placeholder="{{ 'general.search.search' | t }}"
-          autocorrect="off"
-          autocomplete="off"
-          autocapitalize="off"
-          spellcheck="false"
-          role="combobox"
-          aria-expanded="false"
-          aria-owns="predictive-search-results"
-          aria-controls="predictive-search-results"
-          aria-haspopup="listbox"
-          aria-autocomplete="list"
-        >
-        <label class="field__label animated-text" id="animated-text" for="{{ input_id }}">
-          {{- 'general.search.search' | t -}}
-        </label>
-        <button class="search__button field__button" aria-label="{{ 'general.search.search' | t }}">
-          <span class="svg-wrapper">
-            {{ 'icon-search.svg' | inline_asset_content }}
-          </span>
-        </button>
-      </div>
+    <div class="modal-overlay"></div>
+    <div
+      class="search-modal__content{% if settings.inputs_shadow_vertical_offset != 0 and settings.inputs_shadow_vertical_offset < 0 %} search-modal__content-top{% else %} search-modal__content-bottom{% endif %}"
+      tabindex="-1"
+    >
+      {%- if settings.predictive_search_enabled -%}
+        <predictive-search class="search-modal__form" data-loading-text="{{ 'accessibility.loading' | t }}">
+      {%- else -%}
+        <search-form class="search-modal__form">
+      {%- endif -%}
+      <form action="{{ routes.search_url }}" method="get" role="search" class="search search-modal__form">
+        <div class="field">
+          <input
+            class="search__input field__input"
+            id="{{ input_id }}"
+            type="search"
+            name="q"
+            value="{{ search.terms | escape }}"
+            placeholder="{{ 'general.search.search' | t }}"
+            {%- if settings.predictive_search_enabled -%}
+              role="combobox"
+              aria-expanded="false"
+              aria-owns="predictive-search-results"
+              aria-controls="predictive-search-results"
+              aria-haspopup="listbox"
+              aria-autocomplete="list"
+              autocorrect="off"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+            {%- endif -%}
+          >
+          <label class="field__label animated-text" id="animated-text" for="{{ input_id }}">
+            {{- 'general.search.search' | t -}}
+          </label>
+          <input type="hidden" name="options[prefix]" value="last">
+          <button
+            type="reset"
+            class="reset__button field__button{% if search.terms == blank %} hidden{% endif %}"
+            aria-label="{{ 'general.search.reset' | t }}"
+          >
+            <span class="svg-wrapper">
+              {{- 'icon-reset.svg' | inline_asset_content -}}
+            </span>
+          </button>
+          <button class="search__button field__button" aria-label="{{ 'general.search.search' | t }}">
+            <span class="svg-wrapper">
+              {{- 'icon-search.svg' | inline_asset_content -}}
+            </span>
+          </button>
+        </div>
 
-      <!-- Predictive Search Results Placeholder -->
-      <div class="predictive-search predictive-search--header" tabindex="-1" data-predictive-search>
-        {% render 'loading-spinner', class: 'predictive-search__loading-state' %}
-      </div>
+        {%- if settings.predictive_search_enabled -%}
+          <div class="predictive-search predictive-search--header" tabindex="-1" data-predictive-search>
+            {%- render 'loading-spinner', class: 'predictive-search__loading-state' -%}
+          </div>
 
-      <span class="predictive-search-status visually-hidden" role="status" aria-hidden="true"></span>
-    </form>
-  </predictive-search>
+          <span class="predictive-search-status visually-hidden" role="status" aria-hidden="true"></span>
+        {%- endif -%}
+      </form>
+      {%- if settings.predictive_search_enabled -%}
+        </predictive-search>
+      {%- else -%}
+        </search-form>
+      {%- endif -%}
+    </div>
+  </div>
 </div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const element = document.querySelector('.frcp-wishlist-nav-link-wrapper');
-    if (window.innerWidth < 500) {
-      if (element) {
-        element.remove();
-      }
-    }
-  });
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const texts = [
-      'Personalize your space',
-      'Search your style',
-      'Find your home favourites',
-      'Browse beautiful decor',
-      'Design your home',
-    ];
-    let current = 0;
-    const animatedText = document.getElementById('animated-text');
-
-    function showNextText() {
-      animatedText.classList.remove('fade-in');
-      setTimeout(() => {
-        current = (current + 1) % texts.length;
-        animatedText.textContent = texts[current];
-        animatedText.classList.add('fade-in');
-      }, 1000);
-    }
-
-    animatedText.textContent = texts[current];
-    animatedText.classList.add('fade-in');
-
-    setInterval(showNextText, 3000);
-  });
-</script>

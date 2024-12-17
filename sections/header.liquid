@@ -719,3 +719,39 @@
     setInterval(showNextText, 3000);
   });
 </script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const element = document.querySelector('.frcp-wishlist-nav-link-wrapper');
+    if (window.innerWidth < 500) {
+      if (element) {
+        element.remove();
+      }
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const texts = [
+      'Personalize your space',
+      'Search your style',
+      'Find your home favourites',
+      'Browse beautiful decor',
+      'Design your home',
+    ];
+    let current = 0;
+    const animatedText = document.getElementById('animated-text');
+
+    function showNextText() {
+      animatedText.classList.remove('fade-in');
+      setTimeout(() => {
+        current = (current + 1) % texts.length;
+        animatedText.textContent = texts[current];
+        animatedText.classList.add('fade-in');
+      }, 1000);
+    }
+
+    animatedText.textContent = texts[current];
+    animatedText.classList.add('fade-in');
+
+    setInterval(showNextText, 3000);
+  });
+</script>
